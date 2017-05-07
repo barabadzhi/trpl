@@ -1,0 +1,7 @@
+[package]
+name = "departments"
+version = "0.1.0"
+authors = ["Bogdan Arabadzhi <bogdan.today@gmail.com>"]
+
+[dependencies]
+lazy_static = "0.2.8"

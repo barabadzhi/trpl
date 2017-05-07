@@ -1,0 +1,7 @@
+[package]
+name = "pig_latin"
+version = "0.1.0"
+authors = ["Bogdan Arabadzhi <bogdan.today@gmail.com>"]
+
+[dependencies]
+regex = "0.2.1"
