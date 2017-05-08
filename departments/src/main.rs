@@ -59,8 +59,8 @@ fn text_interface() {
             Some(&"exit") => std::process::exit(0),
             Some(&"list") => {
                 match command.get(1) {
-                    Some(department) => list_employees(department),
-                    None => list_employees(""),
+                    Some(department) => list_department(department),
+                    None => list_department(""),
                 }
             }
             Some(&"add") => {
@@ -90,24 +90,24 @@ fn parse_department(department: &str) -> Option<Department> {
     }
 }
 
-fn list_employees(department: &str) {
+fn list_employees(department: &Department, department_employees: &Vec<Name>) {
+    println!("Employees of {} Department:", department);
+
+    for employee in department_employees {
+        println!("{}", employee);
+    }
+}
+
+fn list_department(department: &str) {
     let company_departments = COMPANY_DEPARTMENTS.lock().unwrap();
 
     if let Some(department) = parse_department(department) {
         if let Some(department_employees) = company_departments.get(&department) {
-            println!("Employees of {} Department:", department);
-
-            for employee in department_employees {
-                println!("{}", employee);
-            }
+            list_employees(&department, department_employees);
         }
     } else {
         for (department, department_employees) in company_departments.iter() {
-            println!("Employees of {} Department:", department);
-
-            for employee in department_employees {
-                println!("{}", employee);
-            }
+            list_employees(&department, department_employees);
         }
     }
 }
