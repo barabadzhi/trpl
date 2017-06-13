@@ -10,20 +10,31 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("not enough arguments");
-        }
+    pub fn new(mut args: std::env::Args) -> Result<Config, &'static str> {
+        args.next();
 
-        let query = args[1].clone();
-        let filename = args[2].clone();
-        let mut case_sensitive = env::var("CASE_INSENSITIVE").is_err();
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("didn't get a query string"),
+        };
 
-        if let Some(arg) = args.get(3) {
-            if arg == "--insensitive" || arg == "-i" {
-                case_sensitive = false;
+        let filename = match args.next() {
+            Some(arg) => arg,
+            None => return Err("didn't get a file name"),
+        };
+
+        let case_env = env::var("CASE_INSENSITIVE").is_err();
+
+        let case_sensitive = match args.next() {
+            Some(arg) => {
+                if arg == "--insensitive" || arg == "-i" {
+                    true
+                } else {
+                    case_env
+                }
             }
-        }
+            None => case_env,
+        };
 
         Ok(Config {
                query,
@@ -53,28 +64,19 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
 }
 
 fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = Vec::new();
-
-    for line in contents.lines() {
-        if line.contains(query) {
-            results.push(line);
-        }
-    }
-
-    results
+    contents
+        .lines()
+        .filter(|line| line.contains(query))
+        .collect()
 }
 
 fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     let query = query.to_lowercase();
-    let mut results = Vec::new();
 
-    for line in contents.lines() {
-        if line.to_lowercase().contains(&query) {
-            results.push(line);
-        }
-    }
-
-    results
+    contents
+        .lines()
+        .filter(|line| line.to_lowercase().contains(&query))
+        .collect()
 }
 
 #[cfg(test)]
