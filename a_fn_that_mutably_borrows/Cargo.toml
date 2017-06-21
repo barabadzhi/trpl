@@ -1,0 +1,6 @@
+[package]
+name = "a_fn_that_mutably_borrows"
+version = "0.1.0"
+authors = ["Bogdan Arabadzhi <bogdan.today@gmail.com>"]
+
+[dependencies]
