@@ -3,18 +3,26 @@ extern crate regex;
 pub mod pig_latin {
     use regex::Regex;
 
-    pub fn translate(word: &str) -> String {
+    pub fn translate(text: &str) -> String {
         let re = Regex::new(r"[aeiou]").unwrap();
+        let mut pig_latin = Vec::with_capacity(text.len());
 
-        for c in re.find_iter(word) {
-            if c.start() == 0 {
-                return format!("{}-hay", word);
-            } else {
-                return format!("{}-{}ay", &word[c.start()..], &word[..c.start()]);
+        for word in text.split_whitespace() {
+            match re.find(word) {
+                Some(mat) => {
+                    pig_latin.push(if mat.start() == 0 {
+                        format!("{}-hay", word)
+                    } else {
+                        format!("{}-{}ay", &word[mat.start()..], &word[..mat.start()])
+                    });
+                }
+                None => {
+                    pig_latin.push(String::from(word));
+                }
             }
         }
 
-        String::new()
+        pig_latin.join(" ")
     }
 }
 
@@ -35,5 +43,13 @@ mod tests {
     #[test]
     fn empty_word() {
         assert_eq!(pig_latin::translate(""), String::new());
+    }
+
+    #[test]
+    fn multiple_words() {
+        assert_eq!(
+            pig_latin::translate("first apple"),
+            String::from("irst-fay apple-hay")
+        );
     }
 }
