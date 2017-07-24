@@ -1,0 +1,11 @@
+[package]
+name = "hello"
+version = "0.1.0"
+authors = ["Bogdan Arabadzhi <bogdan.today@gmail.com>"]
+
+[[bin]]
+doc = false
+name = "hello"
+path = "src/bin/hello.rs"
+
+[dependencies]
