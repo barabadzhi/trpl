@@ -9,7 +9,7 @@ use std::time::Duration;
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:8000").unwrap();
-    let pool = ThreadPool::new(4);
+    let pool = ThreadPool::new(4).unwrap();
 
     let mut counter = 0;
 

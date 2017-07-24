@@ -1,5 +1,7 @@
 use std::thread;
 use std::sync::{mpsc, Arc, Mutex};
+use std::error::Error;
+use std::fmt;
 
 type Job = Box<FnBox + Send + 'static>;
 
@@ -11,6 +13,21 @@ enum Message {
 pub struct ThreadPool {
     workers: Vec<Worker>,
     sender: mpsc::Sender<Message>,
+}
+
+#[derive(Debug)]
+pub struct PoolCreationError;
+
+impl Error for PoolCreationError {
+    fn description(&self) -> &str {
+        "ThreadPool's `size` can't be zero"
+    }
+}
+
+impl fmt::Display for PoolCreationError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "PoolCreationError: ThreadPool's `size` can't be zero")
+    }
 }
 
 trait FnBox {
@@ -31,8 +48,10 @@ impl ThreadPool {
     /// # Panics
     ///
     /// The `new` function will panic if the size is zero.
-    pub fn new(size: usize) -> ThreadPool {
-        assert!(size > 0);
+    pub fn new(size: usize) -> Result<ThreadPool, PoolCreationError> {
+        if size == 0 {
+            return Err(PoolCreationError);
+        }
 
         let (sender, receiver) = mpsc::channel();
 
@@ -45,7 +64,7 @@ impl ThreadPool {
             workers.push(Worker::new(id, receiver.clone()));
         }
 
-        ThreadPool { workers, sender }
+        Ok(ThreadPool { workers, sender })
     }
 
     pub fn execute<F>(&self, f: F)
